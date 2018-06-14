@@ -1,0 +1,40 @@
+# IAR for STM32 and Eclipse (System Workbench for STM32) gitignore
+
+# Ignore all
+*
+
+# Unignore all dirs
+!*/
+
+## Except
+
+# Sources, Headers, Asm
+!*.c
+!*.h
+!*.s
+
+# IAR project
+!*.ewd
+!*.ewp
+!*.ewt
+!*.eww
+
+# IAR Linker files
+!*.icf
+
+# STM32Cube project
+!*.ioc
+
+# Eclipse project
+!*.cproject
+!*.project
+!*.ld
+
+# gitignore
+!.gitignore
+
+#gitmodules
+!.gitmodules
+
+## Readme file
+!*.md
