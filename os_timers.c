@@ -103,3 +103,15 @@ void os_timer_dispatcher()
     }
   }
 }
+
+uint8_t os_timer_is_active(void (*taskFunc)(const void * args))
+{
+  uint8_t i = taskListTail;
+  while(i--) {
+    if (taskList[i].function == taskFunc) {
+      return 1;
+    }
+  }
+  return 0;
+}
+

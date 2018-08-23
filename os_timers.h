@@ -24,6 +24,7 @@ void os_timer_stop(void (*taskFunc)(const void * args));
 void os_timer_set_arg(void (*taskFunc)(const void *args), void * args);
 void os_timer_tick(void);
 void os_timer_dispatcher(void);
+uint8_t os_timer_is_active(void (*taskFunc)(const void * args));
 
 #ifdef __cplusplus
   }
