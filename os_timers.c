@@ -12,24 +12,19 @@ inline void os_timers_init()
 /* Додавання задачі */
 void os_timer_start(void (*function)(const void *argts), uint32_t taskDelay, uint32_t taskPeriod)
 {
-  if (!function)
-  {
+  if (!function) {
     return;
   }
   
-  uint8_t i = taskListTail;
-  while(i--)
-  {
-    if (taskList[i].function == function)
-    {
+  for(uint8_t i = 0; i < taskListTail; ++i) {
+    if (taskList[i].function == function) {
       taskList[i].delay  = taskDelay;
       taskList[i].period = taskPeriod;
       return;
     }
   }
   
-  if (taskListTail < MAX_TASKS)
-  {
+  if (taskListTail < MAX_TASKS) {
     taskList[taskListTail].function  = function;
     taskList[taskListTail].delay  = taskDelay;
     taskList[taskListTail].period = taskPeriod;
@@ -40,11 +35,8 @@ void os_timer_start(void (*function)(const void *argts), uint32_t taskDelay, uin
 /* Встановлення аргументів для задачі */
 void os_timer_set_arg(void (*function)(const void *args), void * args)
 {
-  uint8_t i = taskListTail;
-  while(i--)
-  {
-    if (taskList[i].function == function)
-    {
+  for(uint8_t i = 0; i < taskListTail; ++i) {
+    if (taskList[i].function == function) {
       taskList[i].arguments = args;
     }
   }
@@ -53,16 +45,11 @@ void os_timer_set_arg(void (*function)(const void *args), void * args)
 /* Видалення задачі */
 void os_timer_stop(void (*function)(const void *args))
 {
-  uint8_t i = taskListTail;
-  while(i--)
-  {
-    if (taskList[i].function == function)
-    {
-      if (i != (taskListTail - 1))
-      {
+  for(uint8_t i = 0; i < taskListTail; ++i) {
+    if (taskList[i].function == function) {
+      if (i != (taskListTail - 1)) {
         taskList[i] = taskList[taskListTail - 1];
       }
-      
       --taskListTail;
       return;
     }
@@ -72,11 +59,8 @@ void os_timer_stop(void (*function)(const void *args))
 /* Системний тік, викликається з періодом 1 мс */
 void os_timer_tick()
 {
-  uint8_t i = taskListTail;
-  while(i--)
-  {
-    if(taskList[i].delay)
-    {
+  for(uint8_t i = 0; i < taskListTail; ++i) {
+    if(taskList[i].delay) {
       --taskList[i].delay;
     }
   }
@@ -85,19 +69,15 @@ void os_timer_tick()
 /* Диспетчер таймерної служби, викликається з основного циклу */
 void os_timer_dispatcher()
 {
-  uint8_t i = taskListTail;
-  while(i--)
-  {
-    if (taskList[i].delay == 0)
-    {
+  for(uint8_t i = 0; i < taskListTail; ++i) {
+    if (taskList[i].delay == 0) {
       taskList[i].function(taskList[i].arguments);
       
-      if(taskList[i].period != 0)
-      {
+      if(taskList[i].period != 0) {
         taskList[i].delay = taskList[i].period;
       }
-      else if (taskList[i].delay == 0) // Сама ф-я може змінити свій delay
-      {
+      // Сама ф-я може змінити свій delay
+      else if (taskList[i].delay == 0) {
         os_timer_stop(taskList[i].function);
       }
     }
@@ -106,12 +86,10 @@ void os_timer_dispatcher()
 
 uint8_t os_timer_is_active(void (*taskFunc)(const void * args))
 {
-  uint8_t i = taskListTail;
-  while(i--) {
+  for(uint8_t i = 0; i < taskListTail; ++i) {
     if (taskList[i].function == taskFunc) {
       return 1;
     }
   }
   return 0;
 }
-
