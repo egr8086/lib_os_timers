@@ -7,24 +7,15 @@
   extern "C" {
 #endif
 
-#define MAX_TASKS      24              // Максимальна кількість задач
-
-/* Структура задачі */
-typedef struct
-{
-  void (*function)(const void * args);     // Вказівник на ф-ю таймера
-  void * arguments;                        // Аргументи ф-ї
-  uint32_t delay;                          // Затримка
-  uint32_t period;                         // период запуска задачи
-}task_t;
-
+typedef void (*timer_cb)(const void * args);
+    
 void os_timers_init(void);
-void os_timer_start(void (*taskFunc)(const void * args), uint32_t taskDelay, uint32_t taskPeriod);
-void os_timer_stop(void (*taskFunc)(const void * args));
-void os_timer_set_arg(void (*taskFunc)(const void *args), void * args);
+void os_timer_start(timer_cb taskFunc, uint32_t taskDelay, uint32_t taskPeriod);
+void os_timer_stop(timer_cb taskFunc);
+void os_timer_set_arg(timer_cb taskFunc, void * args);
 void os_timer_tick(void);
 void os_timer_dispatcher(void);
-uint8_t os_timer_is_active(void (*taskFunc)(const void * args));
+uint8_t os_timer_is_active(timer_cb taskFunc);
 
 #ifdef __cplusplus
   }

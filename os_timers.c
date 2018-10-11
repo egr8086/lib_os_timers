@@ -1,5 +1,16 @@
 #include "os_timers.h"
 
+#define MAX_TASKS      24              // Максимальна кількість задач
+
+/* Структура задачі */
+typedef struct
+{
+  timer_cb function;     // Вказівник на ф-ю таймера
+  void * arguments;                        // Аргументи ф-ї
+  uint32_t delay;                          // Затримка
+  uint32_t period;                         // период запуска задачи
+}task_t;
+
 task_t taskList[MAX_TASKS];            // Список задас
 uint8_t taskListTail;                  // Хвіст списку задач
 
@@ -10,14 +21,14 @@ inline void os_timers_init()
 }
 
 /* Додавання задачі */
-void os_timer_start(void (*function)(const void *argts), uint32_t taskDelay, uint32_t taskPeriod)
+void os_timer_start(timer_cb taskFunc, uint32_t taskDelay, uint32_t taskPeriod)
 {
-  if (!function) {
+  if (!taskFunc) {
     return;
   }
   
   for(uint8_t i = 0; i < taskListTail; ++i) {
-    if (taskList[i].function == function) {
+    if (taskList[i].function == taskFunc) {
       taskList[i].delay  = taskDelay;
       taskList[i].period = taskPeriod;
       return;
@@ -25,7 +36,7 @@ void os_timer_start(void (*function)(const void *argts), uint32_t taskDelay, uin
   }
   
   if (taskListTail < MAX_TASKS) {
-    taskList[taskListTail].function  = function;
+    taskList[taskListTail].function  = taskFunc;
     taskList[taskListTail].delay  = taskDelay;
     taskList[taskListTail].period = taskPeriod;
     ++taskListTail;
@@ -33,20 +44,20 @@ void os_timer_start(void (*function)(const void *argts), uint32_t taskDelay, uin
 }
 
 /* Встановлення аргументів для задачі */
-void os_timer_set_arg(void (*function)(const void *args), void * args)
+void os_timer_set_arg(timer_cb taskFunk, void * args)
 {
   for(uint8_t i = 0; i < taskListTail; ++i) {
-    if (taskList[i].function == function) {
+    if (taskList[i].function == taskFunk) {
       taskList[i].arguments = args;
     }
   }
 }
 
 /* Видалення задачі */
-void os_timer_stop(void (*function)(const void *args))
+void os_timer_stop(timer_cb taskFunc)
 {
   for(uint8_t i = 0; i < taskListTail; ++i) {
-    if (taskList[i].function == function) {
+    if (taskList[i].function == taskFunc) {
       if (i != (taskListTail - 1)) {
         taskList[i] = taskList[taskListTail - 1];
       }
@@ -57,7 +68,7 @@ void os_timer_stop(void (*function)(const void *args))
 }
 
 /* Системний тік, викликається з періодом 1 мс */
-void os_timer_tick()
+void os_timer_tick(void)
 {
   for(uint8_t i = 0; i < taskListTail; ++i) {
     if(taskList[i].delay) {
@@ -67,7 +78,7 @@ void os_timer_tick()
 }
 
 /* Диспетчер таймерної служби, викликається з основного циклу */
-void os_timer_dispatcher()
+void os_timer_dispatcher(void)
 {
   for(uint8_t i = 0; i < taskListTail; ++i) {
     if (taskList[i].delay == 0) {
@@ -84,7 +95,7 @@ void os_timer_dispatcher()
   }
 }
 
-uint8_t os_timer_is_active(void (*taskFunc)(const void * args))
+uint8_t os_timer_is_active(timer_cb taskFunc)
 {
   for(uint8_t i = 0; i < taskListTail; ++i) {
     if (taskList[i].function == taskFunc) {
