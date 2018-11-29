@@ -19,6 +19,8 @@ The os_timer_dispatcher () function calls from main loop. This function calls al
 
 ## Examples
 ```c
+#include "os_timers.h"
+
 void led_green_toggle_timer(const void * args)
 {
 	led_green_toggle();
@@ -45,7 +47,7 @@ int main(void)
 	os_timer_start(led_green_toggle_timer, 0, 100);
 	/* Toggle red led every 20 ms, start blink after 10 ms */
 	os_timer_start(led_red_toggle_timer, 10, 20);
-	/* Start user application after 200 ms. After execution task will be removed automatically because period = 0 */
+	/* Start user application after 200 ms. After execution task will be removed automatically (period = 0) */
 	os_timer_start(system_start_delay_complete, 200, 0);
 	while(1) {
 		os_timer_dispatcher();
